@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Запись на экскурсию</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,400&family=Spectral:wght@300;400;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:     #f5f0e8;
+      --paper:  #fdfaf4;
+      --ink:    #1c1810;
+      --muted:  #7a6f5e;
+      --accent: #8b4513;
+      --gold:   #c4922a;
+      --border: #d4c9b0;
+      --shadow: rgba(28,24,16,.12);
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--ink);
+      font-family: 'Spectral', Georgia, serif;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem 1rem;
+      position: relative;
+    }
+
+    body::before {
+      content: '';
+      position: fixed; inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.7' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.045'/%3E%3C/svg%3E");
+      pointer-events: none;
+    }
+
+    .corner {
+      position: fixed; width: 100px; height: 100px; pointer-events: none;
+    }
+    .corner--tl { top:1.5rem;left:1.5rem;border-top:2px solid var(--gold);border-left:2px solid var(--gold); }
+    .corner--tr { top:1.5rem;right:1.5rem;border-top:2px solid var(--gold);border-right:2px solid var(--gold); }
+    .corner--bl { bottom:1.5rem;left:1.5rem;border-bottom:2px solid var(--gold);border-left:2px solid var(--gold); }
+    .corner--br { bottom:1.5rem;right:1.5rem;border-bottom:2px solid var(--gold);border-right:2px solid var(--gold); }
+
+    .card {
+      background: var(--paper);
+      border: 1px solid var(--border);
+      border-radius: 2px;
+      padding: 3rem 2.5rem 2.5rem;
+      width: 100%; max-width: 500px;
+      position: relative; z-index: 2;
+      box-shadow: 0 2px 4px var(--shadow), 0 10px 30px var(--shadow), inset 0 0 0 1px rgba(255,255,255,.7);
+      opacity: 0;
+      transform: translateY(28px) scale(.98);
+      animation: appear .8s cubic-bezier(.22,1,.36,1) .1s forwards;
+    }
+
+    @keyframes appear { to { opacity:1; transform:translateY(0) scale(1); } }
+
+    .eyebrow {
+      font-size: .6rem;
+      letter-spacing: .22em;
+      text-transform: uppercase;
+      color: var(--gold);
+      text-align: center;
+      margin-bottom: 1.2rem;
+    }
+
+    h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: 2rem;
+      font-weight: 700;
+      text-align: center;
+      line-height: 1.25;
+      margin-bottom: .4rem;
+    }
+
+    .subtitle {
+      text-align: center;
+      font-style: italic;
+      color: var(--muted);
+      font-size: .88rem;
+      margin-bottom: 1.6rem;
+    }
+
+    hr {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 1.4rem 0;
+      position: relative;
+    }
+    hr::after {
+      content: '◆';
+      position: absolute; left:50%; top:50%;
+      transform:translate(-50%,-50%);
+      background: var(--paper);
+      padding: 0 .5rem;
+      color: var(--gold);
+      font-size: .6rem;
+    }
+
+    .field { margin-bottom: 1.3rem; }
+
+    label {
+      display: block;
+      font-size: .68rem;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      color: var(--muted);
+      font-weight: 600;
+      margin-bottom: .35rem;
+    }
+
+    input[type="text"],
+    input[type="date"],
+    select {
+      width: 100%;
+      background: transparent;
+      border: none;
+      border-bottom: 1.5px solid var(--border);
+      border-radius: 0;
+      color: var(--ink);
+      font-family: 'Spectral', serif;
+      font-size: 1rem;
+      padding: .4rem .1rem .5rem;
+      outline: none;
+      transition: border-color .3s;
+      appearance: none;
+      -webkit-appearance: none;
+    }
+
+    input[type="text"]:focus,
+    input[type="date"]:focus,
+    select:focus { border-color: var(--accent); }
+
+    input.highlight, select.highlight {
+      border-color: #c0392b !important;
+      animation: blink 1s ease infinite alternate;
+    }
+    @keyframes blink {
+      from { border-color: #c0392b; }
+      to   { border-color: rgba(192,57,43,.25); }
+    }
+
+    .select-wrap { position: relative; }
+    .select-wrap::after {
+      content: '▾'; position: absolute; right: .2rem; top: 50%;
+      transform: translateY(-50%); color: var(--muted); pointer-events: none;
+    }
+    select option { background: #fdfaf4; }
+
+    .check-label {
+      display: flex; align-items: center; gap: .6rem;
+      cursor: pointer; font-size: .95rem; user-select: none;
+    }
+    input[type="checkbox"] {
+      width: 17px; height: 17px;
+      accent-color: var(--accent); cursor: pointer;
+    }
+    .check-hint {
+      font-style: italic; color: var(--muted);
+      font-size: .78rem; margin-top: .25rem; margin-left: 1.7rem;
+    }
+
+    .radio-group { display: flex; flex-wrap: wrap; gap: 1rem; margin-top: .2rem; }
+    .radio-label {
+      display: flex; align-items: center; gap: .45rem;
+      cursor: pointer; font-size: .95rem; user-select: none;
+    }
+    input[type="radio"] {
+      width: 16px; height: 16px;
+      accent-color: var(--accent); cursor: pointer;
+    }
+
+    button[type="submit"] {
+      width: 100%; margin-top: 2rem; padding: .85rem;
+      background: var(--accent); color: #fdfaf4;
+      border: none; border-radius: 2px;
+      font-family: 'Spectral', serif;
+      font-size: .72rem; font-weight: 600;
+      letter-spacing: .22em; text-transform: uppercase;
+      cursor: pointer; position: relative; overflow: hidden;
+      transition: background .3s, box-shadow .3s, transform .15s;
+    }
+    button[type="submit"]:hover {
+      background: #a0522d;
+      box-shadow: 0 4px 20px rgba(139,69,19,.4);
+      transform: translateY(-1px);
+    }
+    button[type="submit"]:active { transform: translateY(1px); box-shadow: none; }
+
+    .ripple {
+      position: absolute; border-radius: 50%;
+      background: rgba(255,255,255,.25);
+      transform: scale(0);
+      animation: ripple .55s linear;
+      pointer-events: none;
+    }
+    @keyframes ripple { to { transform: scale(5); opacity: 0; } }
+
+    #reminder {
+      display: none;
+      position: fixed; bottom: 1.8rem; left: 50%;
+      transform: translateX(-50%);
+      background: #fdf6ec;
+      border: 1px solid #d4a054;
+      color: var(--accent);
+      font-family: 'Spectral', serif;
+      font-style: italic;
+      font-size: .82rem;
+      padding: .65rem 1.5rem;
+      border-radius: 2px;
+      box-shadow: 0 4px 16px rgba(0,0,0,.12);
+      z-index: 100;
+      white-space: nowrap;
+      cursor: pointer;
+      animation: toastIn .4s cubic-bezier(.22,1,.36,1);
+    }
+    @keyframes toastIn {
+      from { opacity:0; transform:translate(-50%,16px); }
+      to   { opacity:1; transform:translate(-50%,0); }
+    }
+  </style>
+</head>
+<body>
+
+<div class="corner corner--tl"></div>
+<div class="corner corner--tr"></div>
+<div class="corner corner--bl"></div>
+<div class="corner corner--br"></div>
+
+<div class="card">
+  <p class="eyebrow">✦ &nbsp; Экскурсионный бюллетень &nbsp; ✦</p>
+  <h1>Запись на экскурсию</h1>
+  <p class="subtitle">Заполните форму — мы зарезервируем место для вас</p>
+  <hr>
+
+  <form id="myForm" action="process.php" method="POST" autocomplete="off">
+
+  <div class="field">
+    <label for="name">Ваше имя</label>
+    <input type="text" id="name" name="name" placeholder="Иванов Иван Иванович">
+  </div>
+
+  <div class="field">
+    <label for="email">Email</label>
+    <input type="text" id="email" name="email" placeholder="ivan@mail.ru">
+  </div>
+
+  <button type="submit" id="submitBtn">Зарегистрироваться</button>
+</form>
+
+</div>
+
+<div id="reminder">📜 Пожалуйста, заполните форму — мы ждём вас!</div>
+
+<script>
+  // Ripple-эффект на кнопке
+  document.getElementById('submitBtn').addEventListener('click', function(e) {
+    const btn = this;
+    const circle = document.createElement('span');
+    circle.classList.add('ripple');
+    const rect = btn.getBoundingClientRect();
+    const size = Math.max(rect.width, rect.height);
+    circle.style.cssText = `width:${size}px;height:${size}px;left:${e.clientX - rect.left - size/2}px;top:${e.clientY - rect.top - size/2}px`;
+    btn.appendChild(circle);
+    setTimeout(() => circle.remove(), 600);
+  });
+
+  // Шаг 1: только alert, e.preventDefault() убран — форма уходит на сервер после OK
+  document.getElementById('myForm').addEventListener('submit', function() {
+    alert(
+      'Вы записались на экскурсию:\n\n' +
+      'Имя: '      + this.name.value + '\n' +
+      'Дата: '     + this.tour_date.value + '\n' +
+      'Маршрут: '  + this.route.value + '\n' +
+      'Аудиогид: ' + (this.audioguide.checked ? 'Да' : 'Нет') + '\n' +
+      'Язык: '     + this.language.value
+    );
+  });
+
+  // Напоминание при 15 с бездействия
+  const fields   = document.querySelectorAll('input[type="text"], input[type="date"], select');
+  const reminder = document.getElementById('reminder');
+  let timer, active = false;
+
+  function showReminder() {
+    fields.forEach(el => { if (!el.value) el.classList.add('highlight'); });
+    reminder.style.display = 'block';
+    active = true;
+  }
+
+  function hideReminder() {
+    fields.forEach(el => el.classList.remove('highlight'));
+    reminder.style.display = 'none';
+    active = false;
+  }
+
+  function resetTimer() {
+    clearTimeout(timer);
+    if (active) hideReminder();
+    timer = setTimeout(showReminder, 15000);
+  }
+
+  document.querySelectorAll('input, select').forEach(el => {
+    el.addEventListener('input',  resetTimer);
+    el.addEventListener('change', resetTimer);
+    el.addEventListener('focus',  resetTimer);
+  });
+
+  reminder.addEventListener('click', () => { hideReminder(); resetTimer(); });
+
+  timer = setTimeout(showReminder, 15000);
+</script>
+</body>
+</html>
