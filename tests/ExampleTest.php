@@ -1,4 +1,11 @@
-public function testTrueIsTrue()
+<?php
+
+use PHPUnit\Framework\TestCase;
+
+class ExampleTest extends TestCase
 {
-    $this->assertTrue(true);
+    public function testTrueIsTrue()
+    {
+        $this->assertTrue(true);
+    }
 }
